@@ -1,0 +1,6 @@
+/* Minimal reset, all main styles in App.css and styled-components */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}

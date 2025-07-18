@@ -1,0 +1,50 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  background: #f5f7fa;
+  color: #0a1931;
+  scroll-behavior: smooth;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f7fa;
+}
+
+main {
+  flex: 1;
+  margin-top: 60px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  font-weight: 700;
+  color: #0a1931;
+  margin-top: 0;
+}
+
+section {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #e6ecf8;
+}
+::-webkit-scrollbar-thumb {
+  background: #b0b8c1;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  main {
+    margin-top: 56px;
+  }
+}
