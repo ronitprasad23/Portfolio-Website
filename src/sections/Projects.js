@@ -106,13 +106,13 @@ const projects = [
     github: '#',
   },
   {
-    title: 'Customer Churn Prediction',
-    image: '/Customer_charm.png',
-    description: 'Machine learning model to predict customer churn using Python.',
-    tech: 'Python, scikit-learn, Pandas',
+    title: 'Fraud Detection System',
+    image: '/Fraud_detection_system.png',
+    description: 'Machine learning model to detect fraudulent transactions using Python.',
+    tech: 'Python, scikit-learn, Pandas, NumPy, Matplotlib, Seaborn, Jupyter',
     category: 'Python',
     demo: '#',
-    github: '#',
+    github: 'https://github.com/ronitprasad23/Fraud_Detection_System_Dataset_Analysis.git',
   },
   {
     title: 'Survey Data Analysis',
@@ -124,10 +124,10 @@ const projects = [
     github: '#',
   },
   {
-    title: 'SQL Data Pipeline',
-    image: '/ETL_pipeline.jpg',
-    description: 'Automated ETL pipeline for data warehousing.',
-    tech: 'SQL, Python, ETL',
+    title: 'Grocery Store System',
+    image: '/Grocery_store.png',
+    description: 'Inventory management system for a grocery store.',
+    tech: 'SQL, Python, SQLite, Pandas, Flask',
     category: 'SQL',
     demo: '#',
     github: '#',
@@ -135,12 +135,21 @@ const projects = [
   {
     title: 'Travel Landing Website',
     image: '/Travel_landing.png',
-    description: 'Book your faviourate destination from here....',
-    tech: 'HTML,CSS,JAVASCRIPT,PYTHON,BOOTSTRAP',
+    description: 'Book your favorite destination from here....',
+    tech: 'HTML, CSS, JAVASCRIPT, PHP, MYSQL, BOOTSTRAP',
     category: 'Full-Stack website',
     demo: '#',
-    github: '#',
+    github: 'https://github.com/ronitprasad23/Travel--Website-.git',
   },
+  {
+    title: 'Netflix Movie Dataset Analysis',
+    image: '/Netflix_Movie.png',
+    description: 'Analyzed Netflix movie dataset to extract insights and trends using Python.',
+    tech: 'Python, Pandas, Matplotlib, Seaborn, Jupyter',
+    category: 'Python',
+    demo: '#',
+    github: 'https://github.com/ronitprasad23/Netflix_Movie_Dataset-Data-Analysis.git'
+  }
 ];
 
 const Projects = () => {

@@ -135,6 +135,7 @@ const About = () => (
           <br></br>
           <CertItem><FaCertificate />Deloitte - Data Analytics Job Simulation</CertItem>
           <CertItem><FaCertificate />Internship Studio - Common Interence Test</CertItem>
+          <CertItem><FaCertificate />NPTEL - Data Science and Algorithm <br/> Using Python <b>Scored 85%</b> </CertItem>
         </Certifications>
       </SectionRow>
     </Container>

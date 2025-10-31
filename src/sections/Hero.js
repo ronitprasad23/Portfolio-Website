@@ -102,7 +102,7 @@ const Hero = () => (
       <Tagline>
         Passionate about transforming data into actionable insights. Seeking opportunities to leverage analytical skills and drive data-driven decision making.
       </Tagline>
-      <ResumeButton href="/ronit_prasad_cv.pdf" download>Download Resume</ResumeButton>
+      <ResumeButton href="/Ronit_Resume.pdf" download>Download Resume</ResumeButton>
       <SocialLinks>
         <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><FaLinkedin /></a>
         <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><FaGithub /></a>
