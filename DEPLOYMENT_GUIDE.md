@@ -60,6 +60,69 @@ If you don't want to use GitHub, you can just drag and drop your build folder.
 
 ---
 
+## Option 3: Netlify &mdash; via GitHub (Recommended for Netlify)
+
+1.  **Connect to Netlify**:
+    *   Log in to Netlify.
+    *   Click **"Add new site"** -> **"Import an existing project"**.
+    *   Select **GitHub** and choose your `Ronit_portfolio` repository.
+
+2.  **Configure Build & Environment Variables**:
+    *   **Build Command**: `npm run build`
+    *   **Publish Directory**: `dist`
+    *   **Environment Variables**:
+        *   Click **"Add environment variable"**.
+        *   Add `VITE_GEMINI_API_KEY` and paste your key.
+        *   Add other keys (`VITE_EMAILJS_SERVICE_ID`, etc.) if needed.
+
+3.  **Deploy**:
+    *   Click **"Deploy site"**.
+
+---
+
 ## Important Note on Environment Variables
 NEVER commit your `.env` file to GitHub. It contains secret keys.
 *   **Vercel/Netlify**: You must enter these keys in the "Settings" dashboard of the platform you choose.
+
+## How to Redeploy (After Changing Settings)
+
+If you change Environment Variables, you must redeploy for them to take effect.
+
+### On Netlify:
+1.  Go to the **"Deploys"** tab in your site dashboard.
+2.  Click the **"Trigger deploy"** button (usually on the right).
+3.  Select **"Deploy project without cache"** (recommended to ensure changes apply) or **"Deploy project"**.
+
+### On Vercel:
+1.  Go to your **"Deployments"** tab.
+2.  Click the three dots **(...)** next to your latest deployment.
+3.  Select **"Redeploy"**.
+
+---
+
+## Troubleshooting: API Key Issues (Google Gemini)
+
+If you see `API_KEY_INVALID` or "API Key is missing" on your deployed site (but it works locally), check these common issues:
+
+1.  **API Key Restrictions (Most Common)**:
+    *   Go to [Google AI Studio / Cloud Console](https://aistudio.google.com/app/apikey).
+    *   Click on your API Key to edit settings.
+    *   **Application restrictions**: If set to "HTTP referrers", you MUST add your Netlify domain (e.g., `https://your-site-name.netlify.app/*`).
+    *   **Recommendation**: For testing, set "Application restrictions" to **None**.
+
+2.  **Copy-Paste Errors**:
+    *   Check your Netlify Environment Variables again.
+    *   Ensure there are **no spaces** at the beginning or end of the key.
+    *   Ensure there are **no quotes** (`""`) around the key.
+
+3.  **Build Not Updated**:
+    *   Did you redeploy *after* adding the key? Vite bundles the key at build time.
+    *   trigger a **"Deploy project without cache"** to be sure.
+
+4.  **"Page Not Found" (404) on Refresh**:
+    *   This happens because Netlify looks for `projects.html` instead of handling it via React.
+    *   **Fix**: Create a file named `_redirects` inside your `public/` folder with this content:
+        ```
+        /* /index.html 200
+        ```
+
