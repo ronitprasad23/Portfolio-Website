@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { FiLock } from 'react-icons/fi';
 
@@ -13,7 +12,11 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) throw error;
             navigate('/admin/dashboard');
         } catch (error) {
             setError('Invalid credentials');

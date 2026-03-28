@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { db, auth } from '../../firebase';
+import { supabase } from '../../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiLogOut } from 'react-icons/fi';
-import { signOut } from 'firebase/auth';
 
 const Dashboard = () => {
     const [projects, setProjects] = useState([]);
@@ -16,12 +14,13 @@ const Dashboard = () => {
 
     const fetchProjects = async () => {
         try {
-            const querySnapshot = await getDocs(collection(db, "projects"));
-            const projectsData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setProjects(projectsData);
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setProjects(data || []);
         } catch (error) {
             console.error("Error fetching projects: ", error);
         } finally {
@@ -32,7 +31,12 @@ const Dashboard = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this project?")) {
             try {
-                await deleteDoc(doc(db, "projects", id));
+                const { error } = await supabase
+                    .from('projects')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
                 fetchProjects(); // Refresh list
             } catch (error) {
                 console.error("Error deleting project: ", error);
@@ -41,7 +45,7 @@ const Dashboard = () => {
     };
 
     const handleLogout = async () => {
-        await signOut(auth);
+        await supabase.auth.signOut();
         navigate('/admin/login');
     };
 

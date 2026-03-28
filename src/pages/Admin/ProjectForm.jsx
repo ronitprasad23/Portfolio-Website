@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { doc, getDoc, addDoc, updateDoc, collection } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { supabase } from '../../lib/supabase';
 import { FiSave, FiArrowLeft, FiX, FiUpload, FiImage } from 'react-icons/fi';
 
 const ProjectForm = () => {
@@ -24,15 +23,19 @@ const ProjectForm = () => {
     useEffect(() => {
         if (isEditMode) {
             const fetchProject = async () => {
-                const docRef = doc(db, "projects", id);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
+                const { data, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (data) {
                     setFormData({
                         ...data,
-                        tech: data.tech.join(', ') // Convert array to string for input
+                        tech: data.tech ? data.tech.join(', ') : '' // Convert array to string for input
                     });
-                } else {
+                } else if (error) {
+                    console.error("Error fetching project:", error);
                     alert("Project not found!");
                     navigate('/admin/dashboard');
                 }
@@ -108,16 +111,30 @@ const ProjectForm = () => {
         setLoading(true);
 
         const projectData = {
-            ...formData,
+            title: formData.title,
+            category: formData.category,
+            description: formData.description,
+            image: formData.image,
+            links: formData.links,
             tech: formData.tech.split(',').map(item => item.trim()).filter(item => item !== '')
         };
 
         try {
+            let error;
             if (isEditMode) {
-                await updateDoc(doc(db, "projects", id), projectData);
+                const { error: updateError } = await supabase
+                    .from('projects')
+                    .update(projectData)
+                    .eq('id', id);
+                error = updateError;
             } else {
-                await addDoc(collection(db, "projects"), projectData);
+                const { error: insertError } = await supabase
+                    .from('projects')
+                    .insert([projectData]);
+                error = insertError;
             }
+
+            if (error) throw error;
             navigate('/admin/dashboard');
         } catch (error) {
             console.error("Error saving project: ", error);

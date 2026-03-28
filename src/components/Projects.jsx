@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiGithub, FiExternalLink, FiSearch } from 'react-icons/fi';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 const Projects = () => {
     const [projects, setProjects] = useState([]);
@@ -13,12 +12,13 @@ const Projects = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, "projects"));
-                const projectsData = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setProjects(projectsData);
+                const { data, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                setProjects(data || []);
             } catch (error) {
                 console.error("Error fetching projects: ", error);
             } finally {
