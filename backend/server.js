@@ -3,7 +3,6 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
@@ -13,11 +12,13 @@ const PORT = process.env.PORT || 5000;
 // Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Increased limit for image base64
+app.use(express.json({ limit: '10mb' })); 
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
@@ -33,8 +34,12 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// --- AUTH ROUTES ---
+// --- HEALTH CHECK ---
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Backend is running' });
+});
 
+// --- AUTH ROUTES ---
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -54,8 +59,8 @@ app.get('/api/projects', async (req, res) => {
     const result = await pool.query('SELECT * FROM projects ORDER BY created_at DESC');
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('FETCH ERROR:', err);
+    res.status(500).json({ error: 'Failed to fetch projects', details: err.message });
   }
 });
 
@@ -67,8 +72,8 @@ app.get('/api/projects/:id', async (req, res) => {
     if (result.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('FETCH ID ERROR:', err);
+    res.status(500).json({ error: 'Server error', details: err.message });
   }
 });
 
@@ -76,14 +81,19 @@ app.get('/api/projects/:id', async (req, res) => {
 app.post('/api/projects', authenticateToken, async (req, res) => {
   try {
     const { title, category, description, image, tech, links } = req.body;
+    
+    // Explicitly stringify JSONB fields for the pg driver
+    const techJson = JSON.stringify(tech || []);
+    const linksJson = JSON.stringify(links || { demo: '', repo: '' });
+
     const result = await pool.query(
       'INSERT INTO projects (title, category, description, image, tech, links) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [title, category, description, image, tech, links]
+      [title, category, description, image, techJson, linksJson]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('SAVE ERROR:', err);
+    res.status(500).json({ error: 'Database save failed', details: err.message });
   }
 });
 
@@ -92,15 +102,19 @@ app.put('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, category, description, image, tech, links } = req.body;
+    
+    const techJson = JSON.stringify(tech || []);
+    const linksJson = JSON.stringify(links || { demo: '', repo: '' });
+
     const result = await pool.query(
       'UPDATE projects SET title = $1, category = $2, description = $3, image = $4, tech = $5, links = $6 WHERE id = $7 RETURNING *',
-      [title, category, description, image, tech, links, id]
+      [title, category, description, image, techJson, linksJson, id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('UPDATE ERROR:', err);
+    res.status(500).json({ error: 'Update failed', details: err.message });
   }
 });
 
@@ -112,8 +126,8 @@ app.delete('/api/projects/:id', authenticateToken, async (req, res) => {
     if (result.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
     res.json({ message: 'Project deleted successfully' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('DELETE ERROR:', err);
+    res.status(500).json({ error: 'Delete failed', details: err.message });
   }
 });
 
