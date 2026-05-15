@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { FiLock } from 'react-icons/fi';
 
@@ -12,14 +12,12 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-            if (error) throw error;
+            const { token } = await api.login(email, password);
+            localStorage.setItem('adminToken', token);
             navigate('/admin/dashboard');
         } catch (error) {
-            setError('Invalid credentials');
+            console.error("Login Error:", error);
+            setError(error.message || 'Invalid credentials');
         }
     };
 

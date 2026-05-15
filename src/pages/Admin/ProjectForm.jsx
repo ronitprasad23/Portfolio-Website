@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 import { FiSave, FiArrowLeft, FiX, FiUpload, FiImage } from 'react-icons/fi';
 
 const ProjectForm = () => {
@@ -23,23 +23,21 @@ const ProjectForm = () => {
     useEffect(() => {
         if (isEditMode) {
             const fetchProject = async () => {
-                const { data, error } = await supabase
-                    .from('projects')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (data) {
-                    setFormData({
-                        ...data,
-                        tech: data.tech ? data.tech.join(', ') : '' // Convert array to string for input
-                    });
-                } else if (error) {
+                try {
+                    const data = await api.getProject(id);
+                    if (data) {
+                        setFormData({
+                            ...data,
+                            tech: data.tech ? data.tech.join(', ') : '' // Convert array to string for input
+                        });
+                    }
+                } catch (error) {
                     console.error("Error fetching project:", error);
                     alert("Project not found!");
                     navigate('/admin/dashboard');
+                } finally {
+                    setFetching(false);
                 }
-                setFetching(false);
             };
             fetchProject();
         }
@@ -120,21 +118,11 @@ const ProjectForm = () => {
         };
 
         try {
-            let error;
             if (isEditMode) {
-                const { error: updateError } = await supabase
-                    .from('projects')
-                    .update(projectData)
-                    .eq('id', id);
-                error = updateError;
+                await api.updateProject(id, projectData);
             } else {
-                const { error: insertError } = await supabase
-                    .from('projects')
-                    .insert([projectData]);
-                error = insertError;
+                await api.createProject(projectData);
             }
-
-            if (error) throw error;
             navigate('/admin/dashboard');
         } catch (error) {
             console.error("Error saving project: ", error);

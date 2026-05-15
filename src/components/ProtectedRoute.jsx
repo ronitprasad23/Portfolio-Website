@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 
 const ProtectedRoute = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check active sessions and sets the user
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
+        const checkAuth = () => {
+            const auth = api.isAuthenticated();
+            setIsAuthenticated(auth);
             setLoading(false);
-        });
-
-        // Listen for changes on auth state (logged in, signed out, etc.)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        return () => subscription.unsubscribe();
+        };
+        
+        checkAuth();
+        
+        // Since we are using localStorage, we could potentially listen for storage events
+        // but for a simple portfolio, re-checking on mount is usually enough.
     }, []);
 
     if (loading) {
@@ -30,7 +27,7 @@ const ProtectedRoute = ({ children }) => {
         );
     }
 
-    if (!user) {
+    if (!isAuthenticated) {
         return <Navigate to="/admin/login" replace />;
     }
 

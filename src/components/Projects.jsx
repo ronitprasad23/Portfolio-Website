@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiGithub, FiExternalLink, FiSearch } from 'react-icons/fi';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 
 const Projects = () => {
     const [projects, setProjects] = useState([]);
@@ -12,12 +12,7 @@ const Projects = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('projects')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
+                const data = await api.getProjects();
                 setProjects(data || []);
             } catch (error) {
                 console.error("Error fetching projects: ", error);
@@ -104,8 +99,8 @@ const Projects = () => {
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-dark-base/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                                         <div className="flex gap-3">
-                                            {project.links?.repo && <a href={project.links.repo} className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white hover:text-dark-base transition-all" title="View Code"><FiGithub size={20} /></a>}
-                                            {project.links?.demo && <a href={project.links.demo} className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white hover:text-dark-base transition-all" title="Live Demo"><FiExternalLink size={20} /></a>}
+                                            {project.links?.repo && <a href={project.links.repo} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white hover:text-dark-base transition-all" title="View Code"><FiGithub size={20} /></a>}
+                                            {project.links?.demo && <a href={project.links.demo} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white hover:text-dark-base transition-all" title="Live Demo"><FiExternalLink size={20} /></a>}
                                         </div>
                                     </div>
                                 </div>
@@ -120,9 +115,6 @@ const Projects = () => {
                                     </p>
 
                                     <div className="mt-4 flex flex-wrap gap-2">
-                                        {/* Debug: Force rendering to check if code runs */}
-                                        {project.tech && console.log('Rendering project:', project.title, project.tech)}
-
                                         {project.tech && Array.isArray(project.tech) && project.tech.length > 0 ? (
                                             project.tech.map((t, index) => (
                                                 <span
@@ -133,7 +125,6 @@ const Projects = () => {
                                                 </span>
                                             ))
                                         ) : (
-                                            /* Fallback for string data */
                                             project.tech ? (
                                                 <span className="inline-block px-3 py-1 text-xs font-bold text-white bg-teal-600 rounded-full shadow-sm">
                                                     {project.tech}

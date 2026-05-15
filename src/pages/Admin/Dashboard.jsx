@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiLogOut } from 'react-icons/fi';
 
@@ -14,12 +14,7 @@ const Dashboard = () => {
 
     const fetchProjects = async () => {
         try {
-            const { data, error } = await supabase
-                .from('projects')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
+            const data = await api.getProjects();
             setProjects(data || []);
         } catch (error) {
             console.error("Error fetching projects: ", error);
@@ -31,21 +26,17 @@ const Dashboard = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this project?")) {
             try {
-                const { error } = await supabase
-                    .from('projects')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) throw error;
+                await api.deleteProject(id);
                 fetchProjects(); // Refresh list
             } catch (error) {
                 console.error("Error deleting project: ", error);
+                alert("Failed to delete project: " + error.message);
             }
         }
     };
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
+    const handleLogout = () => {
+        api.logout();
         navigate('/admin/login');
     };
 
