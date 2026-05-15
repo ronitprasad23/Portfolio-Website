@@ -1,0 +1,14 @@
+[build]
+  # The command to run to build your site
+  command = "npm run build"
+  
+  # The directory that contains the deploy-ready HTML files and assets
+  publish = "dist"
+
+# Single Page Application (SPA) redirect rule
+# This ensures that all paths are handled by index.html, 
+# allowing React Router to manage the navigation.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
